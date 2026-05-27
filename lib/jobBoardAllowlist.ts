@@ -76,10 +76,19 @@ export function isVerifiedJobUrl(url: string): boolean {
   try {
     const parsed = new URL(url);
     const hostname = parsed.hostname.toLowerCase().replace(/^www\./, "");
+    const fullPath = parsed.pathname.toLowerCase();
 
-    return VERIFIED_DOMAINS.some(
+    const domainMatch = VERIFIED_DOMAINS.some(
       (domain) => hostname === domain || hostname.endsWith(`.${domain}`)
     );
+    if (domainMatch) return true;
+
+    const pathMatch = CAREERS_PATH_PATTERNS.some((pattern) =>
+      pattern.test(fullPath)
+    );
+    if (pathMatch) return true;
+
+    return false;
   } catch {
     return false;
   }
