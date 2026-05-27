@@ -14,7 +14,7 @@ export async function searchJobs(
   const response = await fetch("https://google.serper.dev/search", {
     method: "POST",
     headers: {
-      "X-API-KEY": process.env.SERPER_API_KEY!,
+      "X-API-KEY": "de8d39b9df33b793a1185f8c565f42e610f21857",
       "Content-Type": "application/json",
     },
     body: JSON.stringify({

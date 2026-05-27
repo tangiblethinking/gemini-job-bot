@@ -1,6 +1,6 @@
 import { GoogleGenerativeAI } from "@google/generative-ai";
 
-const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY!);
+const genAI = new GoogleGenerativeAI("AIzaSyBkOBdEvoXW5jl8q8byF0VnhUj6cPaJsC4");
 
 export interface ExtractedProfile {
   jobTitles: string[];
