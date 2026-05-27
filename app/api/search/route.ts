@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { searchJobs } from "@/lib/serperClient";
+import { searchJobs, SerperResult } from "@/lib/serperClient";
 import { isVerifiedJobUrl } from "@/lib/jobBoardAllowlist";
 
 export const runtime = "nodejs";
@@ -27,14 +27,12 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "jobTitles required" }, { status: 400 });
     }
 
-    // Search top 5 titles in parallel
     const titlesToSearch = jobTitles.slice(0, 5);
     const searchResults = await Promise.allSettled(
       titlesToSearch.map((title) => searchJobs(title, seniorityLevel || "Senior"))
     );
 
-    // Flatten all results
-    const allResults: Array<{ result: ReturnType<typeof searchJobs> extends Promise<infer T> ? T[0] : never; role: string }> = [];
+    const allResults: Array<{ result: SerperResult; role: string }> = [];
     searchResults.forEach((settled, idx) => {
       if (settled.status === "fulfilled") {
         settled.value.forEach((r) => {
@@ -43,7 +41,6 @@ export async function POST(req: NextRequest) {
       }
     });
 
-    // Filter to verified URLs only
     const seen = new Set<string>();
     const verifiedJobs: VerifiedJob[] = [];
 
@@ -53,12 +50,10 @@ export async function POST(req: NextRequest) {
 
       seen.add(result.link);
 
-      // Extract company name from URL hostname
       let company = "";
       try {
         const hostname = new URL(result.link).hostname.replace(/^www\./, "");
         company = hostname.split(".")[0];
-        // Capitalize
         company = company.charAt(0).toUpperCase() + company.slice(1);
       } catch {
         company = result.source || "Unknown";
